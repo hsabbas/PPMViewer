@@ -1,1 +1,0 @@
-const uploadInput = document.getElementById("file_upload");
