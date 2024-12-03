@@ -29,55 +29,44 @@ function parseFile(file) {
     const reader = new FileReader();
     reader.onload = function () {
         const content = reader.result.trim();
-        let current = "";
-        let parsedWords = 0;
-        for (let i = 0; i < content.length; i++) {
+        let parsedWords = [];
+
+        let i = 0;
+        while (i < content.length) {
+            let line = "";
             while (i < content.length &&
-                (content[i] !== ' ' && content[i] !== '\n' && content[i] !== '#' && content[i] !== '\r')) {
-                current += content[i];
+                (content[i] !== '\n' && content[i] !== '#' && content[i] !== '\r')) {
+                line += content[i];
                 i++;
             }
-            if (i < content.length && content[i] === '#') {
-                while (i < content.length && content[i] !== '\n') {
+            parsedWords = parsedWords.concat(line.split(' '));
+            if(i < content.length && content[i] === '#'){
+                while(i < content.length && content[i] !== '\n'){
                     i++;
                 }
             }
-
-            if (current.length > 0) {
-                switch (parsedWords) {
-                    case 0:                        
-                        if (current != "P3") {
-                            error.innerText = "PPM file format is invalid";
-                            return;
-                        }
-                        break;
-                    case 1:
-                        width = parseInt(current);
-                        if (isNaN(width)) {
-                            error.innerText = "Failed to parse width";
-                            return;
-                        }
-                        break;
-                    case 2:
-                        height = parseInt(current);
-                        if (isNaN(height)) {
-                            error.innerText = "Failed to parse height";
-                            return;
-                        }
-                        break;
-                    case 3:
-                        if (current != "255") {
-                            error.innerText = "Max color value must be 255";
-                            return;
-                        }
-                        break;
-                    default:
-                    //pixel input
-
-                }
-                parsedWords++;
-                current = "";
+            while (i < content.length && (content[i] === '\n' || content[i] === '\r')) {
+                i++;
             }
+        }
+
+        if (parsedWords[0] !== "P3") {
+            error.innerText = "PPM file format is invalid";
+            return;
+        }
+        width = parseInt(parsedWords[1]);
+        if (isNaN(width)) {
+            error.innerText = "Failed to parse width";
+            return;
+        }
+        height = parseInt(parsedWords[2]);
+        if (isNaN(height)) {
+            error.innerText = "Failed to parse height";
+            return;
+        }
+        if (parsedWords[3] !== "255") {
+            error.innerText = "Max color value must be 255";
+            return;
         }
     }
     reader.readAsText(file);
