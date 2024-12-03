@@ -13,7 +13,7 @@ uploadInput.addEventListener("change", () => {
         return;
     }
 
-    if (!file.name.endsWith(".ppm")) {
+    if (!file.name.endsWith(".ppm") && !file.name.endsWith(".txt")) {
         error.innerText = "Not a .ppm file";
         return;
     }
@@ -23,7 +23,7 @@ uploadInput.addEventListener("change", () => {
         const content = reader.result.trim();
         const parsedWords = parseFile(content);
         const valid = validatePPMFile(parsedWords);
-        if(valid) {
+        if (valid) {
             clearCanvas();
             drawCanvas(parsedWords);
         }
@@ -32,29 +32,12 @@ uploadInput.addEventListener("change", () => {
 })
 
 function parseFile(content) {
-    let parsedWords = [];
+    var lines = content.split('\n')
+        .filter(l => !l.match(/^#/))
+        .join('\n')
 
-    let i = 0;
-    while (i < content.length) {
-        let line = "";
-        while (i < content.length &&
-            (content[i] !== '\n' && content[i] !== '#' && content[i] !== '\r')) {
-            line += content[i];
-            i++;
-        }
-        parsedWords = parsedWords.concat(line.trim().split(' '));
-        if(i < content.length && content[i] === '#'){
-            while(i < content.length && content[i] !== '\n'){
-                i++;
-            }
-        }
-        while (i < content.length && (content[i] === '\n' || content[i] === '\r')) {
-            i++;
-        }
-    }
-    console.log(parsedWords);
-    
-    return parsedWords;
+    var whitespace = /[ \t\r\n]+/
+    return lines.split(whitespace)
 }
 
 function validatePPMFile(parsedWords) {
@@ -76,7 +59,7 @@ function validatePPMFile(parsedWords) {
         error.innerText = "Max color value must be 255";
         return false;
     }
-    if(parsedWords.length !== 4 + width * height * 3){
+    if (parsedWords.length !== 4 + width * height * 3) {
         error.innerText = "PPM file format is invalid";
         return false;
     }
@@ -84,8 +67,6 @@ function validatePPMFile(parsedWords) {
 }
 
 function drawCanvas(parsedWords) {
-    const width = 255;
-    const height = 255;
     canvas.setAttribute("width", width);
     canvas.setAttribute("height", height);
 
@@ -93,12 +74,15 @@ function drawCanvas(parsedWords) {
         const imgData = context.createImageData(width, height);
         const data = imgData.data;
         for (let x = 0; x < width; x++) {
+            console.log(`lines left: ${width - x}`);
+
             for (let y = 0; y < height; y++) {
-                let index = 4 * (x + y * imgData.width);
-                data[index] = x;
-                data[index + 1] = y;
-                data[index + 2] = 0;
-                data[index + 3] = 255;
+                let pixelIndex = 4 * (x + y * imgData.width);
+                let colorIndex = 4 + 3 * (x + y * width);
+                data[pixelIndex] = parsedWords[colorIndex];
+                data[pixelIndex + 1] = parsedWords[colorIndex + 1];
+                data[pixelIndex + 2] = parsedWords[colorIndex + 2];
+                data[pixelIndex + 3] = 255;
             }
         }
         context.putImageData(imgData, 0, 0);
