@@ -1,7 +1,7 @@
-#PPM Image Viewer
+# PPM Image Viewer
 Small web app to display a PPM image. Just upload the file.
 
-###References:
+### References:
 For PPM format:
 https://en.wikipedia.org/wiki/Netpbm
 Copied the file parsing done here:
