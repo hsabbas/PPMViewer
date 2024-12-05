@@ -1,5 +1,5 @@
 # PPM Image Viewer
-Small web app to display a PPM image. Just upload the file.
+Small web app to display a PPM image. Created to test my ray tracer. Just upload the file.
 
 ### References:
 For PPM format:
